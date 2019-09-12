@@ -2,6 +2,7 @@ package com.nao20010128nao.FtpHelper
 
 import org.apache.ftpserver.ftplet.Authentication
 import org.apache.ftpserver.ftplet.User
+import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication
 import org.apache.ftpserver.usermanager.impl.AbstractUserManager
 
 class QuickUserManager(private val users: Map<String, String>) : AbstractUserManager() {
@@ -13,8 +14,17 @@ class QuickUserManager(private val users: Map<String, String>) : AbstractUserMan
         null
     }
 
-    override fun authenticate(authentication: Authentication): User {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun authenticate(auth: Authentication): User? {
+        return if (auth is UsernamePasswordAuthentication) {
+            val user = getUserByName(auth.username) ?: return null
+            if (user.password == auth.password) {
+                user
+            } else {
+                null
+            }
+        } else {
+            null
+        }
     }
 
     override fun doesExist(username: String?): Boolean = users.containsKey(username)
